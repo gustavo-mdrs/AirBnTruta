@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -15,68 +15,77 @@
 
       <a href="/hospedagem/new" class="btn btn-success" style="margin: 1%">Nova Hospedagem</a>
 
-      <div th:if="${hospedagens.size() == 0}" class="h4" style="padding: 1%">
+      <!-- DEBUG: Mostrar dados brutos -->
+      <div th:if="${debug}" style="background-color: #f8f9fa; padding: 10px; margin: 10px 0; border: 1px solid #ccc;">
+        <h6>DEBUG INFO:</h6>
+        <p>Total hospedagens: <span th:text="${hospedagens != null ? hospedagens.size() : 'NULL'}"></span></p>
+        <p>InteressesMap: <span th:text="${interessesMap != null ? 'EXISTE' : 'NULL'}"></span></p>
+      </div>
+
+      <div th:if="${hospedagens != null and hospedagens.size() == 0}" class="h4" style="padding: 1%">
         Você ainda não possui hospedagens cadastradas!
       </div>
 
-      <div class="d-flex flex-wrap">
-        <div th:each="hospedagem : ${hospedagens}" th:object="${hospedagem}" style="padding:1%; width: 100%; max-width: 18rem;">
-          <div class="card border shadow" 
-               th:style="'width: 18rem;'+${(hospedagem.fugitivo!=null)?'background-color:#f5f5f5':''}">
+      <div th:if="${hospedagens != null and hospedagens.size() > 0}" class="d-flex flex-wrap">
+        <div th:each="h : ${hospedagens}" style="padding:1%; width: 100%; max-width: 18rem;">
+          <div class="card border shadow h-100" 
+               th:style="${h.fugitivo != null} ? 'background-color:#f5f5f5; width: 18rem;' : 'width: 18rem;'">
             
             <!-- Cabeçalho com badges -->
             <div class="card-header d-flex justify-content-between align-items-center p-2">
               <!-- Status -->
-              <span th:if="${hospedagem.fugitivo != null}" 
-                    class="badge bg-danger">Ocupada</span>
-              <span th:unless="${hospedagem.fugitivo != null}" 
-                    class="badge bg-success">Disponível</span>
+              <span th:if="${h.fugitivo != null}" class="badge bg-danger">Ocupada</span>
+              <span th:unless="${h.fugitivo != null}" class="badge bg-success">Disponível</span>
               
-              <!-- Contador de interesses -->
-              <span th:if="${hospedagem.fugitivo == null and facade.countInteressesByHospedagem(hospedagem.codigo) > 0}" 
+              <!-- Contador de interesses (usando o Map com verificação) -->
+              <span th:if="${h.fugitivo == null and interessesMap != null and interessesMap.get(h.codigo) > 0}" 
                     class="badge bg-warning text-dark">
-                <span th:text="${facade.countInteressesByHospedagem(hospedagem.codigo)}"></span> interesse(s)
+                <span th:text="${interessesMap.get(h.codigo)}"></span> interesse(s)
               </span>
             </div>
             
-            <div class="card-body">
-              <h5 class="card-title" th:text="${descricaoCurta}"></h5>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title" th:text="${h.descricaoCurta} ?: 'Sem descrição'"></h5>
               <h6 class="card-subtitle mb-2 text-muted">Informações da Diária</h6>
               <div>
-                <p class="card-text" th:text="*{localizacao}"></p>
-                <p class="card-text" th:text="'Valor da diária: R$ ' + ${#numbers.formatDecimal(diaria, 1, 2)}"></p>
-                <p class="card-text" th:text="*{descricaoLonga}"></p>
+                <p class="card-text">
+                  <strong>Local:</strong> <span th:text="${h.localizacao} ?: 'Não informado'"></span>
+                </p>
+                <p class="card-text">
+                  <strong>Diária:</strong> R$ 
+                  <span th:text="${h.diaria != null ? #numbers.formatDecimal(h.diaria, 1, 2) : '0,00'}"></span>
+                </p>
+                <p class="card-text" style="max-height: 100px; overflow: hidden;" 
+                   th:text="${h.descricaoLonga} ?: 'Sem descrição detalhada'"></p>
                 
                 <!-- Informação de quem está ocupando -->
-                <div th:if="${hospedagem.fugitivo != null}" 
-                     class="alert alert-info p-1 mt-2 mb-2">
+                <div th:if="${h.fugitivo != null}" class="alert alert-info p-1 mt-2 mb-2">
                   <small>
                     <strong>Ocupada por:</strong><br>
-                    <span th:text="${hospedagem.fugitivo.vulgo}"></span>
+                    <span th:text="${h.fugitivo.vulgo} ?: 'Desconhecido'"></span>
                   </small>
                 </div>
               </div>
               
-              <div class="d-flex justify-content-between">
-                <a href="#" th:href="@{/hospedeiro/viewhospedagem/{id}(id=*{codigo})}" 
-                   class="btn btn-info btn-sm">detalhe</a>
+              <div class="d-flex justify-content-between mt-auto">
+                <!-- Botão temporário - substituir por link real se existir -->
+                <button class="btn btn-info btn-sm">detalhe</button>
                 
-                <!-- Botão de interesses (só aparece se houver interesses e estiver disponível) -->
-                <a th:if="${hospedagem.fugitivo == null and facade.countInteressesByHospedagem(hospedagem.codigo) > 0}"
-                   th:href="@{/hospedeiro/interesses/{id}(id=${hospedagem.codigo})}" 
+                <!-- Botão de interesses (com verificação completa) -->
+                <a th:if="${h.fugitivo == null and interessesMap != null and interessesMap.get(h.codigo) > 0}"
+                   th:href="@{/hospedeiro/interesses/{id}(id=${h.codigo})}" 
                    class="btn btn-warning btn-sm">
                   interesses
                 </a>
                 
                 <!-- Mensagem se não houver interesses -->
-                <span th:if="${hospedagem.fugitivo == null and facade.countInteressesByHospedagem(hospedagem.codigo) == 0}"
+                <span th:if="${h.fugitivo == null and (interessesMap == null or interessesMap.get(h.codigo) == 0)}"
                       class="text-muted small align-self-center">
                   sem interesses
                 </span>
                 
-                <!-- Se ocupada, botão desabilitado -->
-                <span th:if="${hospedagem.fugitivo != null}"
-                      class="text-muted small align-self-center">
+                <!-- Se ocupada -->
+                <span th:if="${h.fugitivo != null}" class="text-muted small align-self-center">
                   já ocupada
                 </span>
               </div>

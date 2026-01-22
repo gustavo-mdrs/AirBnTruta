@@ -125,9 +125,8 @@ public final class HospedagemRepository implements Repository<Hospedagem, Intege
         return filterBy(sql);
     }
 
-    public List<Hospedagem> filterByHospedeiro(int codigoHospedeiro) throws SQLException{
-        String sql = "SELECT * FROM hospedagem WHERE fugitivo_id IS NULL";
-
+    public List<Hospedagem> filterByHospedeiro(int codigoHospedeiro) throws SQLException {
+        String sql = "SELECT * FROM hospedagem WHERE hospedeiro_id = " + codigoHospedeiro;
         return filterBy(sql);
     }
 

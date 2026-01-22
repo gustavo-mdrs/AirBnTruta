@@ -96,9 +96,9 @@ public final class InteresseRepository implements Repository<Interesse,Integer>{
 
     public List<Interesse> filterByFugitivo(int fugitivoId) throws SQLException {
         String sql = "SELECT i.* FROM interesse i " +
-                     "INNER JOIN hospedagem h ON i.hospedagem_id = h.codigo " +
-                     "WHERE i.fugitivo_id = ? AND h.fugitivo_id IS NULL " +
-                     "ORDER BY i.realizado DESC";
+                 "INNER JOIN hospedagem h ON i.hospedagem_id = h.codigo " +
+                 "WHERE i.fugitivo_id = ? " +  
+                 "ORDER BY i.realizado DESC";
         
         PreparedStatement stmt = ConnectionManager.getCurrentConnection().prepareStatement(sql);
         stmt.setInt(1, fugitivoId);

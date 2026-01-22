@@ -149,6 +149,8 @@ public String verDetalhesHospedagem(@PathVariable int id, Model m) {
         return "redirect:/fugitivo";
     }
     
+    Fugitivo fugitivoLogado = (Fugitivo) session.getAttribute("fugitivoLogado");
+    
     try {
         Hospedagem hospedagem = facade.readHospedagem(id);
         if (hospedagem == null) {
@@ -158,12 +160,23 @@ public String verDetalhesHospedagem(@PathVariable int id, Model m) {
         
         // Verifica se a hospedagem está disponível
         if (hospedagem.getFugitivo() != null) {
-            m.addAttribute("msg", "Esta hospedagem já não está disponível!");
-            return "redirect:/fugitivo/home";
+            // Se está ocupada, verifica se é pelo fugitivo logado
+            if (hospedagem.getFugitivo().getCodigo() == fugitivoLogado.getCodigo()) {
+                // É o fugitivo que ocupa a hospedagem - mostra detalhes com mensagem
+                m.addAttribute("hospedagem", hospedagem);
+                m.addAttribute("msg", "Você está ocupando esta hospedagem!");
+                m.addAttribute("interesse", new Interesse());
+                return "fugitivo/detalhes";
+            } else {
+                // Outro fugitivo ocupa - redireciona
+                m.addAttribute("msg", "Esta hospedagem já está ocupada por outro fugitivo!");
+                return "redirect:/fugitivo/home";
+            }
         }
         
+        // Hospedagem disponível - mostra normalmente
         m.addAttribute("hospedagem", hospedagem);
-        m.addAttribute("interesse", new Interesse()); // Para o formulário
+        m.addAttribute("interesse", new Interesse());
         
     } catch (SQLException e) {
         e.printStackTrace();

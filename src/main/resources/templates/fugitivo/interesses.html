@@ -31,10 +31,25 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="mb-0" th:text="${interesse.interesse.descricaoCurta}"></h5>
-                            <span class="badge bg-info">
-                                Interesse registrado em: 
-                                <span th:text="${interesse.getRealizadoFormatado()}"></span>
-                            </span>
+                            <div>
+                                <span class="badge bg-info">
+                                    Registrado em: <span th:text="${interesse.getRealizadoFormatado()}"></span>
+                                </span>
+                                
+                                <!-- Status da hospedagem -->
+                                <span th:if="${interesse.interesse.fugitivo != null and interesse.interesse.fugitivo.codigo == session.fugitivoLogado.codigo}"
+                                      class="badge bg-success ms-1">
+                                    ✓ Aceito
+                                </span>
+                                <span th:if="${interesse.interesse.fugitivo != null and interesse.interesse.fugitivo.codigo != session.fugitivoLogado.codigo}"
+                                      class="badge bg-danger ms-1">
+                                    ✗ Ocupado por outro
+                                </span>
+                                <span th:if="${interesse.interesse.fugitivo == null}"
+                                      class="badge bg-warning ms-1">
+                                    ⏳ Aguardando
+                                </span>
+                            </div>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -49,20 +64,58 @@
                                     </p>
                                     <p>
                                         <strong>Sua Proposta:</strong> 
-                                        <span th:text="${interesse.proposta} ?: 'Sem proposta específica'"></span>
+                                        <span th:text="${interesse.proposta ?: 'Sem proposta específica'}"></span>
                                     </p>
                                     <p>
                                         <strong>Tempo Desejado:</strong> 
                                         <span th:text="${interesse.tempoPermanencia}"></span> dias
                                     </p>
+                                    
+                                    <!-- Hospedeiro -->
+                                    <p th:if="${interesse.interesse.hospedeiro != null}">
+                                        <strong>Hospedeiro:</strong> 
+                                        <span th:text="${interesse.interesse.hospedeiro.vulgo}"></span>
+                                        <span th:if="${interesse.interesse.hospedeiro.contato}">
+                                            (<span th:text="${interesse.interesse.hospedeiro.contato}"></span>)
+                                        </span>
+                                    </p>
                                 </div>
                                 <div class="col-md-4 text-end">
-                                    <a th:href="@{/fugitivo/hospedagem/{id}(id=${interesse.interesse.codigo})}" 
-                                       class="btn btn-info btn-sm">
+                                    <!-- Botão condicional: só mostra se a hospedagem ainda estiver disponível -->
+                                    <a th:if="${interesse.interesse.fugitivo == null}"
+                                       th:href="@{/fugitivo/hospedagem/{id}(id=${interesse.interesse.codigo})}" 
+                                       class="btn btn-info btn-sm mb-2">
                                         Ver Hospedagem
                                     </a>
-                                    <div class="mt-2">
-                                        <span class="badge bg-success">Aguardando resposta</span>
+                                    
+                                    <!-- Se ocupada pelo próprio fugitivo -->
+                                    <div th:if="${interesse.interesse.fugitivo != null and interesse.interesse.fugitivo.codigo == session.fugitivoLogado.codigo}"
+                                         class="alert alert-success p-2">
+                                        <small>
+                                            <i class="bi bi-check-circle"></i>
+                                            <strong>Interesse aceito!</strong><br>
+                                            Esta hospedagem foi reservada para você.
+                                        </small>
+                                    </div>
+                                    
+                                    <!-- Se ocupada por outro -->
+                                    <div th:if="${interesse.interesse.fugitivo != null and interesse.interesse.fugitivo.codigo != session.fugitivoLogado.codigo}"
+                                         class="alert alert-danger p-2">
+                                        <small>
+                                            <i class="bi bi-x-circle"></i>
+                                            <strong>Hospedagem ocupada</strong><br>
+                                            Outro fugitivo foi selecionado.
+                                        </small>
+                                    </div>
+                                    
+                                    <!-- Se ainda disponível -->
+                                    <div th:if="${interesse.interesse.fugitivo == null}"
+                                         class="alert alert-warning p-2">
+                                        <small>
+                                            <i class="bi bi-clock"></i>
+                                            <strong>Aguardando resposta</strong><br>
+                                            O hospedeiro ainda não decidiu.
+                                        </small>
                                     </div>
                                 </div>
                             </div>

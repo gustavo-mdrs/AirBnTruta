@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detalhes da Hospedagem</title>
+    <div th:insert="~{frags/misc :: bootstrap}"></div>
+</head>
+<body>
+    <div th:insert="~{frags/menu :: fugitivo}"></div>
+
+    <div class="container mt-4">
+        <!-- Botão voltar -->
+        <div class="mb-4">
+            <a th:href="@{/fugitivo/home}" class="btn btn-outline-secondary">
+                ← Voltar para lista
+            </a>
+        </div>
+
+        <!-- Mensagens -->
+        <div th:if="${msg}" class="alert alert-info alert-dismissible fade show" role="alert">
+            <span th:text="${msg}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Detalhes da Hospedagem -->
+        <div th:if="${hospedagem}" class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0" th:text="${hospedagem.descricaoCurta}"></h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5>Descrição</h5>
+                        <p th:text="${hospedagem.descricaoLonga}" class="text-justify"></p>
+                        
+                        <h5 class="mt-4">Localização</h5>
+                        <p>
+                            <i class="bi bi-geo-alt"></i>
+                            <span th:text="${hospedagem.localizacao}" class="h5"></span>
+                        </p>
+                        
+                        <h5>Período de Disponibilidade</h5>
+                        <p>
+                            De <span th:text="${hospedagem.getInicioFormatado()}"></span>
+                            <span th:if="${hospedagem.fim != null}">
+                                até <span th:text="${hospedagem.getFimFormatado()}"></span>
+                            </span>
+                            <span th:unless="${hospedagem.fim != null}">
+                                (sem data final definida)
+                            </span>
+                        </p>
+                        
+                        <h5>Serviços Inclusos</h5>
+                        <div th:if="${hospedagem.servicos != null and !hospedagem.servicos.isEmpty()}">
+                            <div class="d-flex flex-wrap gap-2">
+                                <span th:each="servico : ${hospedagem.servicos}" 
+                                      class="badge bg-success">
+                                    <span th:text="${servico.nome}"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <div th:unless="${hospedagem.servicos != null and !hospedagem.servicos.isEmpty()}">
+                            <p class="text-muted">Nenhum serviço adicional informado.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card border-primary">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Informações da Diária</h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <h3 class="text-primary">
+                                    R$ <span th:text="${#numbers.formatDecimal(hospedagem.diaria, 1, 2)}"></span>
+                                </h3>
+                                <p class="text-muted">por dia</p>
+                                
+                                <div class="mt-4">
+                                    <span class="badge bg-success fs-6">Disponível</span>
+                                </div>
+                                
+                                <!-- Formulário de Interesse -->
+                                <div class="mt-4">
+                                    <h6>Demonstrar Interesse</h6>
+                                    <form th:action="@{/fugitivo/interesse/} + ${hospedagem.codigo}" 
+                                          method="post" class="mt-3">
+                                        
+                                        <div class="mb-3">
+                                            <label for="proposta" class="form-label">
+                                                Sua Proposta/Mensagem
+                                            </label>
+                                            <textarea id="proposta" name="proposta" 
+                                                      class="form-control" rows="3"
+                                                      placeholder="Escreva uma mensagem para o hospedeiro..."
+                                                      required></textarea>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="tempoPermanencia" class="form-label">
+                                                Tempo de Permanência (dias)
+                                            </label>
+                                            <input type="number" id="tempoPermanencia" 
+                                                   name="tempoPermanencia" 
+                                                   class="form-control" min="1" max="365"
+                                                   placeholder="Ex: 7" required>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="bi bi-heart"></i> Demonstrar Interesse
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Informações do Hospedeiro -->
+                        <div class="card mt-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">Hospedeiro</h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-1">
+                                    <strong>Nome:</strong> 
+                                    <span th:text="${hospedagem.hospedeiro.nome}"></span>
+                                </p>
+                                <p class="mb-1">
+                                    <strong>Vulgo:</strong> 
+                                    <span th:text="${hospedagem.hospedeiro.vulgo}"></span>
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Contato:</strong> 
+                                    <span th:text="${hospedagem.hospedeiro.contato}"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

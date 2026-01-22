@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AirBnTruta - Home Fugitivo</title>
+    <div th:insert="~{frags/misc :: bootstrap}"></div>
+</head>
+<body>
+    <div th:insert="~{frags/menu :: fugitivo}"></div>
+
+    <div class="container mt-4">
+        <!-- Mensagem de boas-vindas -->
+        <div class="alert alert-info">
+            <h4>Bem-vindo, <span th:text="${session.fugitivoLogado.vulgo}">Vulgo</span>!</h4>
+            <p class="mb-0">Aqui estão todas as hospedagens disponíveis para você.</p>
+        </div>
+
+        <!-- Mensagens do sistema -->
+        <div th:if="${msg}" class="alert alert-info alert-dismissible fade show" role="alert">
+            <span th:text="${msg}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Filtros IMPLEMENTADOS -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Filtrar Hospedagens</h5>
+                <form th:action="@{/fugitivo/filtrar}" method="get" class="row g-3">
+                    <div class="col-md-6">
+                        <label for="localidade" class="form-label">Localidade</label>
+                        <input type="text" class="form-control" id="localidade" name="localidade" 
+                               th:value="${localidadeFiltro}" 
+                               placeholder="Digite uma localidade...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="precoMin" class="form-label">Preço Mínimo (R$)</label>
+                        <input type="number" class="form-control" id="precoMin" name="precoMin" 
+                               th:value="${precoMinFiltro}" 
+                               placeholder="0.00" step="0.01" min="0">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="precoMax" class="form-label">Preço Máximo (R$)</label>
+                        <input type="number" class="form-control" id="precoMax" name="precoMax" 
+                               th:value="${precoMaxFiltro}" 
+                               placeholder="9999.99" step="0.01" min="0">
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Filtrar</button>
+                        <a th:href="@{/fugitivo/home}" class="btn btn-secondary">Limpar Filtros</a>
+                        
+                        <!-- Mostra filtros ativos -->
+                        <div th:if="${localidadeFiltro != null or precoMinFiltro != null or precoMaxFiltro != null}" 
+                             class="mt-3">
+                            <small class="text-muted">
+                                Filtros ativos: 
+                                <span th:if="${localidadeFiltro}" class="badge bg-info">
+                                    Localidade: <span th:text="${localidadeFiltro}"></span>
+                                </span>
+                                <span th:if="${precoMinFiltro}" class="badge bg-info ms-1">
+                                    Mín: R$ <span th:text="${#numbers.formatDecimal(precoMinFiltro, 1, 2)}"></span>
+                                </span>
+                                <span th:if="${precoMaxFiltro}" class="badge bg-info ms-1">
+                                    Máx: R$ <span th:text="${#numbers.formatDecimal(precoMaxFiltro, 1, 2)}"></span>
+                                </span>
+                            </small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Contador de resultados -->
+        <div th:if="${hospedagens != null and hospedagens.size() > 0}" class="mb-3">
+            <h3>Hospedagens Disponíveis 
+                <span class="badge bg-primary">
+                    <span th:text="${hospedagens.size()}"></span> resultado(s)
+                </span>
+            </h3>
+        </div>
+
+        <!-- Lista de Hospedagens -->
+        <div th:if="${hospedagens != null and hospedagens.size() > 0}">
+            
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                <div class="col" th:each="hospedagem : ${hospedagens}">
+                    <div class="card h-100 border shadow">
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${hospedagem.descricaoCurta}"></h5>
+                            <h6 class="card-subtitle mb-2 text-muted">
+                                <span th:text="${hospedagem.localizacao}"></span>
+                            </h6>
+                            <p class="card-text">
+                                <strong>Diária:</strong> 
+                                R$ <span th:text="${#numbers.formatDecimal(hospedagem.diaria, 1, 2)}"></span>
+                            </p>
+                            <p class="card-text text-truncate" style="max-height: 100px;" 
+                               th:text="${hospedagem.descricaoLonga}">
+                            </p>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    Disponível de 
+                                    <span th:text="${hospedagem.getInicioFormatado()}"></span>
+                                    <span th:if="${hospedagem.fim != null}">
+                                        até <span th:text="${hospedagem.getFimFormatado()}"></span>
+                                    </span>
+                                </small>
+                            </p>
+                            
+                            <!-- Serviços disponíveis (se houver) -->
+                            <div th:if="${hospedagem.servicos != null and !hospedagem.servicos.isEmpty()}" 
+                                 class="mb-2">
+                                <small>
+                                    <strong>Serviços:</strong>
+                                    <span th:each="servico, stat : ${hospedagem.servicos}">
+                                        <span class="badge bg-secondary" 
+                                              th:text="${servico.nome}"></span>
+                                        <span th:if="${!stat.last}">, </span>
+                                    </span>
+                                </small>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mt-3">
+                                <!-- Botão temporário - será implementado na Parte 3 -->
+                                <a th:href="@{/fugitivo/hospedagem/{id}(id=${hospedagem.codigo})}" 
+                                   class="btn btn-info btn-sm">Ver Detalhes</a>
+                                
+                                <!-- Status da hospedagem -->
+                                <span th:if="${hospedagem.fugitivo != null}" 
+                                      class="badge bg-danger align-self-center">
+                                    Indisponível
+                                </span>
+                                <span th:unless="${hospedagem.fugitivo != null}" 
+                                      class="badge bg-success align-self-center">
+                                    Disponível
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mensagem quando não há resultados -->
+        <div th:if="${hospedagens == null or hospedagens.size() == 0}" class="alert alert-warning">
+            <h5>Nenhuma hospedagem disponível</h5>
+            <p th:if="${localidadeFiltro != null or precoMinFiltro != null or precoMaxFiltro != null}">
+                Não foram encontradas hospedagens com os filtros aplicados.
+                <a th:href="@{/fugitivo/home}" class="alert-link">Clique aqui para ver todas as hospedagens</a>.
+            </p>
+            <p th:unless="${localidadeFiltro != null or precoMinFiltro != null or precoMaxFiltro != null}">
+                Não há hospedagens disponíveis no momento. Tente novamente mais tarde.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

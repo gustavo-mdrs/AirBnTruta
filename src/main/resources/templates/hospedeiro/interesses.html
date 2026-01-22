@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interesses na Hospedagem</title>
+    <div th:insert="~{frags/misc :: bootstrap}"></div>
+</head>
+<body>
+    <div th:insert="~{frags/menu :: hospedeiro}"></div>
+
+    <div class="container mt-4">
+        <!-- Cabeçalho -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3>Interesses na Hospedagem</h3>
+                <h5 class="text-muted" th:text="${hospedagem.descricaoCurta}"></h5>
+            </div>
+            <a th:href="@{/hospedeiro}" class="btn btn-outline-secondary">
+                ← Voltar para minhas hospedagens
+            </a>
+        </div>
+
+        <!-- Informações da Hospedagem -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Localização:</strong> <span th:text="${hospedagem.localizacao}"></span></p>
+                        <p><strong>Diária:</strong> R$ <span th:text="${#numbers.formatDecimal(hospedagem.diaria, 1, 2)}"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Status:</strong> 
+                            <span th:if="${hospedagem.fugitivo != null}" class="badge bg-danger">Ocupada</span>
+                            <span th:unless="${hospedagem.fugitivo != null}" class="badge bg-success">Disponível</span>
+                        </p>
+                        <p><strong>Total de Interesses:</strong> 
+                            <span class="badge bg-warning" th:text="${interesses != null ? interesses.size() : 0}"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de Interesses -->
+        <div th:if="${interesses != null and !interesses.empty}">
+            <h4 class="mb-3">Interesses Recebidos</h4>
+            
+            <div class="row row-cols-1 g-4">
+                <div class="col" th:each="interesse : ${interesses}">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                Interesse de <span th:text="${interesse.interessado.vulgo}"></span>
+                            </h5>
+                            <span class="badge bg-info">
+                                <span th:text="${interesse.getRealizadoFormatado()}"></span>
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <p>
+                                        <strong>Fugitivo:</strong> 
+                                        <span th:text="${interesse.interessado.nome}"></span>
+                                        (<span th:text="${interesse.interessado.vulgo}"></span>)
+                                    </p>
+                                    <p>
+                                        <strong>Especialidade:</strong> 
+                                        <span th:text="${interesse.interessado.especialidade}"></span>
+                                    </p>
+                                    <p>
+                                        <strong>Facção:</strong> 
+                                        <span th:text="${interesse.interessado.faccao} ?: 'Não informada'"></span>
+                                    </p>
+                                    <p>
+                                        <strong>Proposta:</strong> 
+                                        <span th:text="${interesse.proposta} ?: 'Sem proposta específica'"></span>
+                                    </p>
+                                    <p>
+                                        <strong>Tempo Desejado:</strong> 
+                                        <span th:text="${interesse.tempoPermanencia}"></span> dias
+                                    </p>
+                                    <p>
+                                        <strong>Descrição do Fugitivo:</strong> 
+                                        <span th:text="${interesse.interessado.descricao} ?: 'Não fornecida'"></span>
+                                    </p>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <!-- Botão para aceitar interesse -->
+                                    <form th:action="@{/hospedeiro/aceitar-interesse}" method="post" class="mb-3">
+                                        <input type="hidden" name="interesseId" th:value="${interesse.codigo}">
+                                        <button type="submit" class="btn btn-success btn-lg w-100">
+                                            <i class="bi bi-check-circle"></i> Aceitar este Interesse
+                                        </button>
+                                    </form>
+                                    
+                                    <div class="alert alert-info">
+                                        <small>
+                                            <strong>Atenção:</strong> Ao aceitar este interesse, a hospedagem 
+                                            será marcada como ocupada e não receberá mais interesses.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mensagem quando não há interesses -->
+        <div th:if="${interesses == null or interesses.empty}" class="alert alert-warning">
+            <h5>Nenhum interesse recebido para esta hospedagem</h5>
+            <p>
+                Esta hospedagem ainda não recebeu interesses de fugitivos.
+                <a th:href="@{/hospedeiro}" class="alert-link">Voltar para minhas hospedagens</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

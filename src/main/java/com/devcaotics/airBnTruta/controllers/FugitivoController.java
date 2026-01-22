@@ -42,7 +42,7 @@ public class FugitivoController {
         m.addAttribute("fugitivo", new Fugitivo());
         m.addAttribute("msg", this.msg);
         this.msg = null;
-        return "fugitivo/login"; // Vamos criar este template
+        return "fugitivo/login";
     }
 
     @GetMapping("/home")
@@ -62,7 +62,7 @@ public class FugitivoController {
             m.addAttribute("msg", "Não foi possível carregar as hospedagens disponíveis!");
         }
         
-        return "fugitivo/home"; // Vamos criar este template
+        return "fugitivo/home"; 
     }
 
     @PostMapping("/save")
@@ -118,10 +118,8 @@ public String filtrarHospedagens(
         List<Hospedagem> hospedagens;
         
         if ((localidade == null || localidade.trim().isEmpty()) && precoMin == null && precoMax == null) {
-            // Se não há filtros, mostra tudo
             hospedagens = facade.filterHospedagemByAvailable();
         } else {
-            // Aplica filtros
             hospedagens = facade.filterHospedagemByLocalidadeEPreco(
                 localidade != null ? localidade.trim() : null, 
                 precoMin, 
@@ -229,7 +227,6 @@ public String demonstrarInteresse(@PathVariable int hospedagemId,
 
 @GetMapping("/interesses")
 public String meusInteresses(Model m) {
-    // Verifica se está logado
     Fugitivo fugitivoLogado = (Fugitivo) session.getAttribute("fugitivoLogado");
     if (fugitivoLogado == null) {
         return "redirect:/fugitivo";

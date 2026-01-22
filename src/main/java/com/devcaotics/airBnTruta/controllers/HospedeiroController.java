@@ -112,7 +112,6 @@ public class HospedeiroController {
     @GetMapping("/interesses/{hospedagemId}")
 public String verInteressesHospedagem(@PathVariable int hospedagemId, Model m) {
     
-    // Verifica se está logado
     if(session.getAttribute("hospedeiroLogado") == null){
         return "redirect:/hospedeiro";
     }
@@ -145,7 +144,6 @@ public String verInteressesHospedagem(@PathVariable int hospedagemId, Model m) {
 @PostMapping("/aceitar-interesse")
 public String aceitarInteresse(@RequestParam int interesseId, Model m) {
     
-    // Verifica se está logado
     if(session.getAttribute("hospedeiroLogado") == null){
         return "redirect:/hospedeiro";
     }

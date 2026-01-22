@@ -166,7 +166,6 @@ public final class HospedagemRepository implements Repository<Hospedagem, Intege
      public List<Hospedagem> filterByLocalidadeEPreco(String localidade, Double precoMin, Double precoMax) throws SQLException {
     StringBuilder sql = new StringBuilder("SELECT * FROM hospedagem WHERE fugitivo_id IS NULL");
     
-    // Seguindo o padrão do filterByHospedeiro (concatenação direta)
     if (localidade != null && !localidade.isEmpty()) {
         sql.append(" AND localizacao LIKE '%").append(localidade).append("%'");
     }
@@ -179,7 +178,6 @@ public final class HospedagemRepository implements Repository<Hospedagem, Intege
         sql.append(" AND diaria <= ").append(precoMax);
     }
     
-    // Usando o método filterBy existente que já carrega relacionamentos
     return filterBy(sql.toString());
 }
 

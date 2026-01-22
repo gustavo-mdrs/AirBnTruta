@@ -8,7 +8,6 @@ public class ConnectionManager {
 
 	private static final String URL = "jdbc:mysql://localhost:3306/airbntruta";
 	private static final String USER = "root";
-	// Abaixo colocar a senha do banco de dados.
 	private static final String PASSWORD = "root";
 
 	private static Connection conn = null;

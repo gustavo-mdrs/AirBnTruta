@@ -114,17 +114,14 @@ public class Facade {
         return ((InteresseRepository)this.rInteresse).filterByHospedagem(hospedagemId);
     }
 
-        // Contar interesses por hospedagem
     public int countInteressesByHospedagem(int hospedagemId) throws SQLException {
         return ((InteresseRepository)this.rInteresse).countByHospedagem(hospedagemId);
     }
 
-    // Aceitar interesse (associar fugitivo à hospedagem)
     public void aceitarInteresse(int hospedagemId, int fugitivoId) throws SQLException {
         ((HospedagemRepository)this.rHospedagem).updateFugitivo(hospedagemId, fugitivoId);
     }
 
-    // Buscar interesse por código
     public Interesse readInteresse(int interesseId) throws SQLException {
         return this.rInteresse.read(interesseId);
     }

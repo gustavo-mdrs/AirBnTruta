@@ -52,7 +52,6 @@ public final class InteresseRepository implements Repository<Interesse,Integer>{
         i.setProposta(rs.getString("proposta"));
         i.setTempoPermanencia(rs.getInt("tempo_permanencia"));
         
-        // Carregar relacionamentos
         i.setInteressado(new FugitivoRepository().read(rs.getInt("fugitivo_id")));
         i.setInteresse(new HospedagemRepository().read(rs.getInt("hospedagem_id")));
         
@@ -113,7 +112,6 @@ public final class InteresseRepository implements Repository<Interesse,Integer>{
             i.setProposta(rs.getString("proposta"));
             i.setTempoPermanencia(rs.getInt("tempo_permanencia"));
             
-            // Carregar relacionamentos
             i.setInteressado(new FugitivoRepository().read(rs.getInt("fugitivo_id")));
             i.setInteresse(new HospedagemRepository().read(rs.getInt("hospedagem_id")));
             
@@ -139,7 +137,6 @@ public final class InteresseRepository implements Repository<Interesse,Integer>{
             i.setProposta(rs.getString("proposta"));
             i.setTempoPermanencia(rs.getInt("tempo_permanencia"));
             
-            // Carregar relacionamentos
             i.setInteressado(new FugitivoRepository().read(rs.getInt("fugitivo_id")));
             i.setInteresse(new HospedagemRepository().read(rs.getInt("hospedagem_id")));
             
@@ -149,7 +146,6 @@ public final class InteresseRepository implements Repository<Interesse,Integer>{
         return interesses;
     }
 
-    // Método adicional: verificar se fugitivo já tem interesse na hospedagem
     public boolean hasInterest(int fugitivoId, int hospedagemId) throws SQLException {
         String sql = "SELECT COUNT(*) as total FROM interesse " +
                      "WHERE fugitivo_id = ? AND hospedagem_id = ?";
@@ -166,7 +162,6 @@ public final class InteresseRepository implements Repository<Interesse,Integer>{
         return false;
     }
 
-    // Método para contar interesses por hospedagem
     public int countByHospedagem(int hospedagemId) throws SQLException {
         String sql = "SELECT COUNT(*) as total FROM interesse WHERE hospedagem_id = ?";
         
